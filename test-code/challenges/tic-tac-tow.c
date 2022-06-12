@@ -31,12 +31,12 @@ char b[length];
 
 void toBinary(int n)
 {
-    for(short unsigned int i=0; i<length; i++)
+    for(unsigned short i=0; i<length; i++)
     {
         b[i] = '0';
     }
 
-    short unsigned int j = 1;
+    unsigned short j = 1;
 
     do
     {

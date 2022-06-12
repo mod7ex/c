@@ -11,9 +11,9 @@ const double TAXE_RATE_MA = 1.6; // readonly
 
 /* ******************************************************** */
 
-int lengthInMemory(char str[])
+int strLengthInMemory(char str[])
 {
-    // use strlen instead from <string.h>
+    // use strlen instead, from <string.h>
     return sizeof(str) -1;
 }
 
@@ -31,14 +31,32 @@ int lengthOfVisibleString(char str[])
 
 void copyString(char dist[], char src[])
 {
-    // use strcpy instead from <string.h>
-    int i = 0;
-    while (src[i] != '\0')
+    short unsigned int length = sizeof(dist);
+    short unsigned int i = 0;
+
+    while (i<length)
     {
         dist[i] = src[i];
         ++i;
     }
 }
+
+short unsigned int strCompair(char a[], char b[])
+{
+    short unsigned int a_length = sizeof(a);
+    short unsigned int b_length = sizeof(b);
+
+    short unsigned int i = 0;
+
+    while(i<a_length && i<b_length) {
+        if(a[i]<b[i]) return 1;
+        if(a[i]>b[i]) return -1;
+        ++i;
+    }
+
+    return 0;
+}
+
 
 void main(void)
 {
@@ -88,6 +106,8 @@ void main(void)
     char ccc[4] = "abc";
     strcat(sss, ccc); // sss will change
     strncat(sss, ccc, sizeof(sss)-1-strlen(sss)); // sss will change
+
+    strcmp("hi", "hello");
 
     return 0;
 }
