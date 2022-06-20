@@ -2,6 +2,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+    * Make a difference between address of a variable and its pointer
+      -> address is only a hex number pointer has a type that controls how
+         arithmitics are done ...
+
+    * For arrays pointer is the address of the first item
+    * The type of the pointer is what determines how arithmitics will be
+    * The name of an arrays holds the its pointer (the address of the first item A <==> &A[0])
+    * If A is an array of ints of length n then &A is a pointer of type; int (*p)[n]
+
+    * If A is an array then &A is same as &A[0] (not as pointers only as addresses)
+      -> pointer &A is of type; <int (*p)[n]>, pointer &A[0] is of <type; int *p>
+*/
+
 void pointer_casting()
 {
     unsigned  int x = 126;
@@ -83,6 +97,69 @@ void string_array()
 
 }
 
+// *****************************************************
+void print_string(const char* C) // const ==> read-only
+{
+    unsigned short i = 0;
+
+    while (*(C+i) != '\0')
+    {
+        printf("%c", *(C+i));
+        ++i;
+    }
+
+    printf("\n");
+}
+
+void print_string_0(char* C)
+{
+    while (*C != '\0')
+    {
+        printf("%c", *C);
+        C++;
+    }
+
+    printf("\n");
+}
+
+void multi_d_array()
+{
+/*
+
+    A is an array
+    calculations ==>
+        &A[i] <==> A+i,
+        A[i] <==> *(A+i),
+        A[i][j] <==> *(*(A+i)+j)
+
+*/
+    int B[2][3] = { {1, 2, 3}, {4, 5, 6} };
+
+    int (*p)[3] = B;
+
+/*
+
+    A is an array
+    calculations ==> A[i][j][k] <===> *(*(*(A+i)+j)+k)
+
+*/
+    int A[3][2][3] = {
+        { {1, 2, 3}, {4, 5, 6} },
+        { {7, 8, 9}, {10, 11, 12} },
+        { {13, 14, 15}, {16, 17, 18} } 
+    };
+
+    int (*p)[2][3] = A;
+}
+
+void pass_multi_d_array(const int (*A)[2][3])
+{
+
+}
+
+// *****************************************************
+
+
 void main(void)
 {
     /*
@@ -110,4 +187,16 @@ void main(void)
     // ************************************
     int A[] = {1, 2, 3, 4, 5};
     array_sum(A); // only address is passed in fact
+
+    /*
+
+    char *C = "Hello"; // string is stored as a constant, most likely in the text segment in the application memory
+    char S[] = "Hello"; // string is stored in the array ,memory stack frame
+
+    C[0] = 'g'; // ==> error
+    
+    printf("%s \n", C);
+
+    */
 }
+ 
