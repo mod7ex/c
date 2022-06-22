@@ -5,15 +5,15 @@
 /*
     * Make a difference between address of a variable and its pointer
       -> address is only a hex number pointer has a type that controls how
-         arithmitics are done ...
+         arithmitics are done ..., has a value (address) so it's a more complicated thing
 
-    * For arrays pointer is the address of the first item
+    * For arrays pointer is (contains) the address of the first item
     * The type of the pointer is what determines how arithmitics will be
     * The name of an arrays holds the its pointer (the address of the first item A <==> &A[0])
-    * If A is an array of ints of length n then &A is a pointer of type; int (*p)[n]
+    * If A is an array of ints of length n then &A is (can be assigned to) a pointer of type; int (*p)[n]
 
-    * If A is an array then &A is same as &A[0] (not as pointers only as addresses)
-      -> pointer &A is of type; <int (*p)[n]>, pointer &A[0] is of <type; int *p>
+    * If A is an array then &A is same as &A[0] (not as pointers only as addresses (numbers != types))
+      -> pointer &A is of type; <int (*p)[n]>, pointer &A[0] is of type; <int *p>
 */
 
 void pointer_casting()
@@ -38,8 +38,8 @@ void array_pointers()
     int A[5] = {0, 1, 2, 3, 4};
     int *p = NULL;
     // p = &A[0];
-    p = A; // name of the array is a pointer itself! (can be used as a pointer)
-    // but we can't use it for arithmitics (A++, A = A+2 ...)
+    p = A; // name of the array is (holds) a pointer itself! (can be used as a pointer)
+    // but we can't use it for arithmitics (A++, A = A+2 ... don't assign to A another value)
     
     // (p+i) <==> (A+i) <==> &A[i]
     // *(p+i) <==> *(A+i) <==> A[i]
@@ -170,13 +170,13 @@ void main(void)
         the binary value to get the original value (int != float != unsigned double ...)
     */
 
-   /*
+/*
     char str[] = "Mourad";
     char c = 'o';
     char *p;
 
     p = strchr(str, c);
-    */
+*/
 
    int a = 10;
    increment(&a);
@@ -188,7 +188,7 @@ void main(void)
     int A[] = {1, 2, 3, 4, 5};
     array_sum(A); // only address is passed in fact
 
-    /*
+/*
 
     char *C = "Hello"; // string is stored as a constant, most likely in the text segment in the application memory
     char S[] = "Hello"; // string is stored in the array ,memory stack frame
@@ -197,6 +197,6 @@ void main(void)
     
     printf("%s \n", C);
 
-    */
+*/
 }
  
