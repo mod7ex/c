@@ -26,7 +26,9 @@ void main()
 
     // int x = (*p)(1, 2); 
     int x = p(1, 2); // this is valid also
-    printf("%d \n\n\n\n", x);
+    printf("%d \n\n\n", x);
 
     world(hello);
+
+    toBinary(2);
 }
