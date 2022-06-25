@@ -1,36 +1,14 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
-/*
-    here we're playing in a size of 3
-    at any size we can imagine the game as a big binary number
-
-    ===========
-    || ====== ||
-    ||||==>|| ||
-    ||||   || ||
-    ||=====|| ||
-    ===========
-
-    1 0 0 -->
-    0 0 --> 1
-    0 <-- 0 0
-    <-- 0 0 1
-
-    0 1 2
-    7 8 3
-    6 5 4
-*/
-
-// *********************************************************************************** Binary
-
-// #define length sizeof(int) * 8
 #define length 9
-
-char b[length];
 
 void toBinary(int n)
 {
+    char b[length];
+
     for(unsigned short i=0; i<length; i++)
     {
         b[i] = '0';
@@ -48,84 +26,116 @@ void toBinary(int n)
     printf("%s \n\n", b);
 }
 
-// ***********************************************************************************
+/*
 
-static char game[9] = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
+    Game     ==> 0 0 0 0 0 0 0 0 0
+                    1 0 0 -->
+                    0 0 --> 1
+                    0 <-- 0 0
+                    <-- 0 0 1
 
-void displayBoard()
+              1 2 3                              1 2 3
+    map ==>   4 5 6 & 1 2 3 4 5 6 7 8 9     ==>  8 9 4  &  1 2 3 8 9 4 7 6 5
+              7 8 9                              7 6 5
+
+    player A ==> 0 0 0 1 0 0 1 0 0
+    player B ==> 0 1 0 0 0 0 0 1 0
+
+    but we should map the user input so we can get the right bit
+
+*/
+
+char *pPlayerA;
+char *pPlayerB;
+
+static unsigned short map_keys[length] = { 1, 2, 3, 8, 9, 4, 7, 6, 5 };
+
+static char game[length] = { '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+
+unsigned short map(unsigned short i)
+{
+    return map_keys[i-1];
+}
+
+void display(char* arr)
 {
     printf("\n");
-    printf(" %c | %1c | %2c \n", game[0], game[1], game[2]);
+    printf(" %c | %1c | %2c \n", arr[0], arr[1], arr[2]);
     printf("---|---|----\n");
-    printf(" %c | %1c | %2c \n", game[3], game[4], game[5]);
+    printf(" %c | %1c | %2c \n", arr[3], arr[4], arr[5]);
     printf("---|---|----\n");
-    printf(" %c | %1c | %2c \n", game[6], game[7], game[8]);
+    printf(" %c | %1c | %2c \n", arr[6], arr[7], arr[8]);
     printf("\n");
 }
 
-void markBoard(short unsigned int turn, short unsigned int position)
-{
-    // player 1 =======> 'x', player 2 =======> 'o'
-    game[position -1] = (turn == 1) ? 'x' : 'o';
-}
-
-bool isValidPosiontInput(short unsigned int p)
-{
-    return p<10 && p > 0 && game[p-1] != 'x' && game[p-1] != 'o';
-}
-
-short unsigned int play(short unsigned int turn)
-{
-    short unsigned int position = 0;
-    short unsigned int attemp = 0;
-    char error[] = "Invalid input; ";
-
-    while (!isValidPosiontInput(position))
-    {
-        if(attemp == 0) printf("Player %hu turn; ", turn);
-        else printf("%sPlayer %hu turn; ", error, turn);
-
-        scanf("%hu", &position);
-        attemp++;
-    }
-
-    markBoard(turn, position);
-    displayBoard();
-
-    return position - 1;
-}
-
-static short unsigned int blocks[8];
+// ************************** Winning Combinations
+static unsigned short WinningCombinations[8];
 
 void init()
 {
     for(int k=0; k<4; k++) {
-        blocks[k] = (1<<((0+2*k)%8)) + (1<<((1+2*k)%8)) + (1<<((2+2*k)%8));
+        WinningCombinations[k] = (1<<((0+2*k)%8)) + (1<<((1+2*k)%8)) + (1<<((2+2*k)%8));
     }
 
-    blocks[4] = (1<<0) + (1<<8) + (1<<4);
-    blocks[5] = (1<<2) + (1<<8) + (1<<6);
-    blocks[6] = (1<<3) + (1<<8) + (1<<7);
-    blocks[7] = (1<<1) + (1<<8) + (1<<5);
+    WinningCombinations[4] = (1<<0) + (1<<8) + (1<<4);
+    WinningCombinations[5] = (1<<2) + (1<<8) + (1<<6);
+
+    WinningCombinations[6] = (1<<3) + (1<<8) + (1<<7);
+    WinningCombinations[7] = (1<<1) + (1<<8) + (1<<5);
+}
+// ************************** **************************
+
+void markBoard(unsigned short turn, unsigned short position)
+{
+    // player 1 =======> 'x', player 2 =======> 'o'
+    game[position-1] = (turn == 1) ? 'X' : 'O';
 }
 
-bool isWinner(short unsigned int result)
+// ************************** **************************
+
+bool isValidInput(unsigned short p)
 {
-    for(int i=0; i<8; i++) {
-        toBinary(result & blocks[i]);
-        toBinary(blocks[i]);
-        if((result & blocks[i]) == blocks[i]) return true;
+    return p<10 && p > 0 && game[p-1] != 'X' && game[p-1] != 'O';
+}
+
+unsigned short play(unsigned short turn)
+{
+    unsigned short position = 0;
+    unsigned short attemp = 0;
+    char error[] = "Ops wrong input please pick an available number between 1 and 9;";
+
+    do {
+        if(attemp == 0) printf("Player %s's turn; ", turn == 1 ? pPlayerA : pPlayerB);
+        else printf("%s Player %s's turn; ", error, turn == 1 ? pPlayerA : pPlayerB);
+
+        scanf("%hu", &position);
+        attemp++;
+    } while (!isValidInput(position));
+
+    markBoard(turn, position);
+    display(game);
+
+    return position;
+}
+
+bool isWinner(unsigned short result)
+{
+    for(unsigned short i=0; i<8; i++)
+    {
+        if((result & WinningCombinations[i]) == WinningCombinations[i]) return true;
     }
 
     return false;
 }
 
-bool canPlay(short unsigned int resultA, short unsigned int resultB)
+bool canPlay(unsigned short resultA, unsigned short resultB)
 {
     if(isWinner(resultA) || isWinner(resultB)) return false;
 
     for(int i=0; i<8; i++) {
-        if(((resultA & blocks[i]) == 0) || ((resultB & blocks[i]) == 0)) return true;
+        // Can you prove this to be true ? 'Well it is a strong intuition but ...'
+        // still hopping for someone to win, block[i] still not touched by one of the players
+        if(((resultA & WinningCombinations[i]) == 0) || ((resultB & WinningCombinations[i]) == 0)) return true;
     }
 
     return false;
@@ -133,24 +143,46 @@ bool canPlay(short unsigned int resultA, short unsigned int resultB)
 
 void main()
 {
-    short unsigned int resultPlayer1 = 0;
-    short unsigned int resultPlayer2 = 0;
+    char *name = (char*)malloc(100*sizeof(char));
+
+    printf("Let first player fill in his name;\n");
+    scanf("%s", name);
+    pPlayerA = (char*)malloc((strlen(name)+1)*sizeof(char));
+    strcpy(pPlayerA, name);
+
+    printf("Great! now let the second player fill in his name also;\n");
+    scanf("%s", name);
+    pPlayerB = (char*)malloc((strlen(name)+1)*sizeof(char));
+    strcpy(pPlayerB, name);
+
+    free(name);
+
+    unsigned short resultPlayerA = 0;
+    unsigned short resultPlayerB = 0;
 
     init();
 
-    displayBoard();
-    
-    do {
-        resultPlayer1 |= 1<<play(1);
-        if(!canPlay(resultPlayer1, resultPlayer2)) break;
-        resultPlayer2 |= 1<<play(2);
-    } while (canPlay(resultPlayer1, resultPlayer2))
+    display(game);
 
-    if (isWinner(resultPlayer1)) {
-        printf("Player 1 won \n");
-    } else if(isWinner(resultPlayer2)) {
-        printf("Player 2 won \n");
+    resultPlayerA |= 1<<(map(play(1)) - 1);
+    resultPlayerB |= 1<<(map(play(2)) - 1);
+    resultPlayerA |= 1<<(map(play(1)) - 1);
+    resultPlayerB |= 1<<(map(play(2)) - 1);
+
+    do {
+        resultPlayerA |= 1<<(map(play(1)) - 1);
+        if(!canPlay(resultPlayerA, resultPlayerB)) break;
+        resultPlayerB |= 1<<(map(play(2)) - 1);
+    } while (canPlay(resultPlayerA, resultPlayerB));
+
+    if (isWinner(resultPlayerA)) {
+        printf("Player %s won \n", pPlayerA);
+    } else if(isWinner(resultPlayerB)) {
+        printf("Player %s won \n", pPlayerB);
     } else {
         printf("There was no winner \n");
     }
+
+    free(pPlayerA);
+    free(pPlayerB);
 }
