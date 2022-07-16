@@ -7,7 +7,6 @@
 
 void main()
 {
-
     char buffer[] = "hello from server";
     char recv_buffer[512];
 
@@ -35,7 +34,6 @@ void main()
             if(recv(client_socket, &recv_buffer, sizeof(recv_buffer), 0) > 0)
             {
                 printf("Client has sent : %s \n", recv_buffer);
-
             }
             
             else
